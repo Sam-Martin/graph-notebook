@@ -8,7 +8,7 @@ import json
 import os
 from enum import Enum
 
-from graph_notebook.neptune.client import SPARQL_ACTION, OPENCYPHER_ACTION
+from graph_notebook.neptune.client import SPARQL_ACTION, OPENCYPHER_ACTION, OPENCYPHER_QUERY_KEY
 DEFAULT_CONFIG_LOCATION = os.path.expanduser('~/graph_notebook_config.json')
 
 
@@ -48,16 +48,16 @@ class OpencypherSection(object):
     Used for opencypher-specific settings in a notebook's configuration
     """
 
-    def __init__(self, path: str = OPENCYPHER_ACTION,):
+    def __init__(self, path: str = OPENCYPHER_ACTION,opencypher_query_key: str=OPENCYPHER_QUERY_KEY):
         """
         :param path: used to specify the base-path of the api being connected to do get to its
                      corresponding opencypher endpoint.
         """
 
-        if path == '':
-            path = OPENCYPHER_ACTION
+        self.path = path or OPENCYPHER_ACTION
+        self.opencypher_query_key = opencypher_query_key or OPENCYPHER_QUERY_KEY
 
-        self.path = path
+
 
     def to_dict(self):
         return self.__dict__

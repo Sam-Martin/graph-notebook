@@ -68,6 +68,7 @@ EXPORT_ACTION = 'neptune-export'
 EXTRA_HEADERS = {'content-type': 'application/json'}
 SPARQL_ACTION = 'sparql'
 OPENCYPHER_ACTION = 'openCypher'
+OPENCYPHER_QUERY_KEY = 'query'
 
 STREAM_AT = 'AT_SEQUENCE_NUMBER'
 STREAM_AFTER = 'AFTER_SEQUENCE_NUMBER'
@@ -78,7 +79,7 @@ STREAM_EXCEPTION_NOT_ENABLED = 'UnsupportedOperationException'
 
 class Client(object):
     def __init__(self, host: str, port: int = DEFAULT_PORT, ssl: bool = True, region: str = DEFAULT_REGION,
-                 sparql_path: str = '/sparql', opencypher_path: str = '/openCypher', auth=None, session: Session = None):
+                 sparql_path: str = '/sparql', opencypher_path: str = '/openCypher', opencypher_query_key='query', auth=None, session: Session = None):
         self.host = host
         self.port = port
         self.ssl = ssl
@@ -226,7 +227,7 @@ class Client(object):
 
         url = f'{self._http_protocol}://{self.host}:{self.port}/{self.opencypher_path}'
         data = {
-            'query': query
+            self.opencypher_query_key: query
         }
 
         req = self._prepare_request('POST', url, data=data, headers=headers)
