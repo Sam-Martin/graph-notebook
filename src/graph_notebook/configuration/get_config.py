@@ -17,7 +17,7 @@ def get_config_from_dict(data: dict) -> Configuration:
                                ssl=data['ssl'], load_from_s3_arn=data['load_from_s3_arn'],
                                aws_region=data['aws_region'], sparql_section=sparql_section, opencypher_section=opencypher_section)
     else:
-        config = Configuration(host=data['host'], port=data['port'], ssl=data['ssl'], sparql_section=sparql_section)
+        config = Configuration(host=data['host'], port=data['port'], ssl=data['ssl'], sparql_section=sparql_section, opencypher_section=opencypher_section)
     return config
 
 

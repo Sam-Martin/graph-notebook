@@ -48,7 +48,7 @@ class OpencypherSection(object):
     Used for opencypher-specific settings in a notebook's configuration
     """
 
-    def __init__(self, path: str = OPENCYPHER_ACTION, endpoint_prefix: str = ''):
+    def __init__(self, path: str = OPENCYPHER_ACTION,):
         """
         :param path: used to specify the base-path of the api being connected to do get to its
                      corresponding opencypher endpoint.
