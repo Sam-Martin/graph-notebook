@@ -8,7 +8,7 @@ import json
 import os
 from enum import Enum
 
-from graph_notebook.neptune.client import SPARQL_ACTION
+from graph_notebook.neptune.client import SPARQL_ACTION, OPENCYPHER_ACTION
 DEFAULT_CONFIG_LOCATION = os.path.expanduser('~/graph_notebook_config.json')
 
 
@@ -43,16 +43,36 @@ class SparqlSection(object):
     def to_dict(self):
         return self.__dict__
 
+class OpencypherSection(object):
+    """
+    Used for opencypher-specific settings in a notebook's configuration
+    """
+
+    def __init__(self, path: str = OPENCYPHER_ACTION, endpoint_prefix: str = ''):
+        """
+        :param path: used to specify the base-path of the api being connected to do get to its
+                     corresponding opencypher endpoint.
+        """
+
+        if path == '':
+            path = OPENCYPHER_ACTION
+
+        self.path = path
+
+    def to_dict(self):
+        return self.__dict__
+
 
 class Configuration(object):
     def __init__(self, host: str, port: int,
                  auth_mode: AuthModeEnum = AuthModeEnum.DEFAULT,
                  load_from_s3_arn='', ssl: bool = True, aws_region: str = 'us-east-1',
-                 sparql_section: SparqlSection = None):
+                 sparql_section: SparqlSection = None, opencypher_section: OpencypherSection = None):
         self.host = host
         self.port = port
         self.ssl = ssl
         self.sparql = sparql_section if sparql_section is not None else SparqlSection()
+        self.opencypher = opencypher_section if opencypher_section is not None else OpencypherSection()
         if ".neptune.amazonaws.com" in self.host:
             self.is_neptune_config = True
             self.auth_mode = auth_mode
@@ -70,14 +90,16 @@ class Configuration(object):
                 'load_from_s3_arn': self.load_from_s3_arn,
                 'ssl': self.ssl,
                 'aws_region': self.aws_region,
-                'sparql': self.sparql.to_dict()
+                'sparql': self.sparql.to_dict(),
+                'opencypher': self.opencypher.to_dict()
             }
         else:
             return {
                 'host': self.host,
                 'port': self.port,
                 'ssl': self.ssl,
-                'sparql': self.sparql.to_dict()
+                'sparql': self.sparql.to_dict(),
+                'opencypher': self.opencypher.to_dict()
             }
 
     def write_to_file(self, file_path=DEFAULT_CONFIG_LOCATION):

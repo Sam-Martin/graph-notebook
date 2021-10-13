@@ -6,17 +6,17 @@ SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 
+import graph_notebook.neptune.gremlin.graphsonV3d0_MapType_objectify_patch  # noqa F401
 import requests
-from SPARQLWrapper import SPARQLWrapper
 from boto3 import Session
-from botocore.session import Session as botocoreSession
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
+from botocore.session import Session as botocoreSession
+from graph_notebook.network import opencypher
 from gremlin_python.driver import client
 from neo4j import GraphDatabase
+from SPARQLWrapper import SPARQLWrapper
 from tornado import httpclient
-
-import graph_notebook.neptune.gremlin.graphsonV3d0_MapType_objectify_patch  # noqa F401
 
 DEFAULT_SPARQL_CONTENT_TYPE = 'application/x-www-form-urlencoded'
 DEFAULT_PORT = 8182
@@ -67,6 +67,7 @@ EXPORT_SERVICE_NAME = 'execute-api'
 EXPORT_ACTION = 'neptune-export'
 EXTRA_HEADERS = {'content-type': 'application/json'}
 SPARQL_ACTION = 'sparql'
+OPENCYPHER_ACTION = 'openCypher'
 
 STREAM_AT = 'AT_SEQUENCE_NUMBER'
 STREAM_AFTER = 'AFTER_SEQUENCE_NUMBER'
@@ -77,11 +78,12 @@ STREAM_EXCEPTION_NOT_ENABLED = 'UnsupportedOperationException'
 
 class Client(object):
     def __init__(self, host: str, port: int = DEFAULT_PORT, ssl: bool = True, region: str = DEFAULT_REGION,
-                 sparql_path: str = '/sparql', auth=None, session: Session = None):
+                 sparql_path: str = '/sparql', opencypher_path: str = '/openCypher', auth=None, session: Session = None):
         self.host = host
         self.port = port
         self.ssl = ssl
         self.sparql_path = sparql_path
+        self.opencypher_path = opencypher_path
         self.region = region
         self._auth = auth
         self._session = session
@@ -222,7 +224,7 @@ class Client(object):
         if 'content-type' not in headers:
             headers['content-type'] = 'application/x-www-form-urlencoded'
 
-        url = f'{self._http_protocol}://{self.host}:{self.port}/openCypher'
+        url = f'{self._http_protocol}://{self.host}:{self.port}/{self.opencypher_path}'
         data = {
             'query': query
         }
@@ -267,7 +269,7 @@ class Client(object):
         driver = GraphDatabase.driver(url, auth=(user, password), encrypted=self.ssl)
         return driver
 
-    def stream(self, url, **kwargs) -> requests.Response: 
+    def stream(self, url, **kwargs) -> requests.Response:
         params = {}
         for k, v in kwargs.items():
             params[k] = v
